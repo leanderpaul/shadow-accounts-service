@@ -1,3 +1,44 @@
 {
-  "extends": "astro/tsconfigs/strict"
+  "compilerOptions": {
+    /** Language and Environment */
+    "target": "ESNext",
+
+    /** Type Checking */
+    "alwaysStrict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false,
+
+    /** Modules */
+    "baseUrl": "./",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "paths": {
+      "@app/*": ["src/*"],
+      "@assets/*": ["public/assets/*"]
+    },
+    "resolveJsonModule": true,
+
+    /** Emit */
+    "noEmit": true,
+    "removeComments": true,
+
+    /** Interop Constraints */
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+
+    /** Completeness */
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

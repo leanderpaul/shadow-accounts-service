@@ -1,55 +1,57 @@
-# Astro Starter Kit: Basics
+# Shadow Accounts
 
-```
-npm create astro@latest -- --template basics
-```
+This code provides an UI for all the accounts or IAM related APIs. This is also used by all the other applications to authenticate the users.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+## Installation
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-![basics](https://user-images.githubusercontent.com/4677417/186188965-73453154-fdec-4d6b-9c34-cb35c248ae5b.png)
-
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── components/
-│   │   └── Card.astro
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
+```bash
+$ npm install
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Running the app
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+The command below will run the application in development mode and watch for file changes.
 
-Any static assets, like images, can be placed in the `public/` directory.
+```bash
+# development
+$ npm run dev
+```
 
-## 🧞 Commands
+# Directory Structure
 
-All commands are run from the root of the project, from a terminal:
+All the code lives inside the `src` directory. The code is splitting into 4 directories which are as follows
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:3000`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+- **components** - contains UI components
+- **layouts** - contains all UI layout
+- **lib** - contains code used in the server side
+- **page** - contains pages for all routes
 
-## 👀 Want to learn more?
+The `public` directory is exposed as a static resource to the route `/`.
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+# Commit Messages
+
+The commit message should follow the following syntax
+
+    type(scope?): subject
+
+The possible values for type are:
+
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation only changes
+- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+- **refactor**: A code change that neither fixes a bug nor adds a feature
+- **perf**: A code change that improves performance
+- **test**: Adding missing tests or correcting existing tests
+- **build**: Changes that affect the build system or external dependencies (example scopes: nest, npm)
+- **ci**: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, Github, Jenkins)
+- **chore**: Other changes that don't modify src or test files
+- **revert**: Reverts a previous commit
+
+**Add an exclamation mark `!` before the semicolon, if it is a breaking change (example: `feat!: breaking change`)**
+
+scope: What is the scope of this change (e.g. component or file name)
+
+subject: Write a short, imperative tense description of the change
+
+Both the scope and subject should be in lowercase.
