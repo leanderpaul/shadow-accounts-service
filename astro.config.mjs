@@ -25,9 +25,8 @@ export default defineConfig({
         '/graphql': {
           target: 'https://archive.dev.shadow-apps.com/graphql/accounts',
           changeOrigin: true,
-          secure: false,
           rewrite: () => '',
-          headers: { service: 'Local Accounts Setup' },
+          headers: { service: 'local-accounts-setup' },
         },
       },
     },

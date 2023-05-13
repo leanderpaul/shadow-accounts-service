@@ -138,8 +138,7 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
   const nameValidator = handleValidation({ required: true, minLength: 3, maxLength: 32, validator: [nameRegex, nameError] });
   nameElement.addEventListener('blur', () => nameValidator(nameElement));
 
-  const emailRegex =
-    /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
+  const emailRegex = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
   const emailError = 'Invalid email address';
   const emailValidator = handleValidation({ required: true, validator: [emailRegex, emailError] });
   emailElement.addEventListener('blur', () => emailValidator(emailElement));
@@ -154,10 +153,8 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
     return function (inputElement: HTMLInputElement) {
       let msg = '';
       if (options.required && !inputElement.value) msg = 'Required';
-      else if (options.minLength && inputElement.value.length < options.minLength)
-        msg = `Shoulw have more than ${options.minLength} characters`;
-      else if (options.maxLength && inputElement.value.length > options.maxLength)
-        msg = `Shoulw have less than ${options.maxLength} characters`;
+      else if (options.minLength && inputElement.value.length < options.minLength) msg = `Should have more than ${options.minLength} characters`;
+      else if (options.maxLength && inputElement.value.length > options.maxLength) msg = `Should have less than ${options.maxLength} characters`;
       else if (options.validator && !options.validator[0].test(inputElement.value)) msg = options.validator[1];
 
       const parentElement = inputElement.parentElement as HTMLDivElement;
