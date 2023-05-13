@@ -1,0 +1,203 @@
+---
+/**
+ * Importing npm packages
+ */
+import { Image } from '@astrojs/image/components';
+
+/**
+ * Importing user defined packages
+ */
+
+/**
+ * Importing components
+ */
+import Layout from '@app/layouts/Layout.astro';
+import Logo from '@assets/images/logo.png';
+
+/**
+ * Defining types
+ */
+
+/**
+ * Declaring the constants
+ */
+export const prerender = true;
+const redirectUrl = new URLSearchParams(Astro.url.search).get('redirectUrl');
+if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
+---
+
+<Layout title='Sign In - Shadow Accounts'>
+  <div class='screen py-20'>
+    <div class='flex-center flex-col'>
+      <Image src={Logo} alt='Shadow Accounts Logo' width={100} />
+      <h1 class='text-xl mt-5'>Sign in to Shadow Accounts</h1>
+      <div id='auth-error' class='error justify-between mt-5'>
+        <div id='auth-error-message'></div>
+        <div class='close'>
+          <svg class='mx-auto' width='20px' height='20px' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
+            <path d='M16 8L8 16M8.00001 8L16 16' stroke='#bbb' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'></path>
+          </svg>
+        </div>
+      </div>
+      <div class='card mt-5'>
+        <div class='field'>
+          <label for='email'>Email Address</label>
+          <input id='email' type='text' />
+          <div class='field-error hidden'>No Errors</div>
+        </div>
+        <div class='field'>
+          <div class='flex justify-between items-center'>
+            <label for='password'>Password</label>
+            <a class='forgot-password text-primary-light' href='/auth/forgot-password'>Forgot password?</a>
+          </div>
+          <input id='password' type='password' />
+          <div class='field-error hidden'>No Errors</div>
+        </div>
+        <button id='signin' class='btn btn-secondary text-white w-full my-2'>Sign In</button>
+      </div>
+      <div class='signup'>
+        <p>Don't have an account?</p>
+        <a class='text-primary-light ml-2' href={redirectUrl ? `/auth/signup?redirectUrl=${redirectUrl}` : '/auth/signup'}>Sign Up</a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .error {
+    display: none;
+    width: 400px;
+    padding: 15px 5px 15px 20px;
+    background-color: #4e1919;
+    color: var(--text-light);
+    border-radius: 3px;
+  }
+
+  .card {
+    background-color: var(--background-paper);
+    width: 400px;
+    padding: 20px;
+    border-radius: 3px;
+  }
+
+  .field {
+    font-size: 16px;
+  }
+
+  .field .field-error {
+    margin: 3px 0px 10px 2px;
+    color: #cf2929;
+    font-size: 14px;
+  }
+
+  .forgot-password {
+    font-size: 14px;
+  }
+
+  .signup {
+    margin-top: 20px;
+    display: flex;
+  }
+
+  .signup * {
+    font-size: 16px;
+  }
+
+  .close {
+    cursor: pointer;
+    width: 40px;
+  }
+
+  .close:hover path {
+    stroke: #fff;
+  }
+</style>
+<script>
+  /** Defining types */
+  interface ValidationOptions {
+    required?: boolean;
+    minLength?: number;
+    maxLength?: number;
+    validator?: [RegExp, string];
+  }
+
+  /** Getting the required element */
+  const emailElement = document.getElementById('email') as HTMLInputElement;
+  const passwordElement = document.getElementById('password') as HTMLInputElement;
+  const authErrorElement = document.getElementById('auth-error') as HTMLDivElement;
+  const authErrorMessageElement = document.getElementById('auth-error-message') as HTMLDivElement;
+
+  /** Setting up event listeners */
+  const signinButton = document.getElementById('signin') as HTMLButtonElement;
+  signinButton.addEventListener('click', () => signin());
+
+  const close = document.querySelector('#auth-error .close') as HTMLDivElement;
+  close.addEventListener('click', () => authErrorElement.classList.remove('flex'));
+
+  const emailRegex = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]{1,32}@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
+  const emailError = 'Invalid email address';
+  const emailValidator = handleValidation({ required: true, validator: [emailRegex, emailError] });
+  emailElement.addEventListener('blur', () => emailValidator(emailElement));
+
+  const passwordValidator = handleValidation({ required: true, minLength: 8, maxLength: 32 });
+  passwordElement.addEventListener('blur', () => passwordValidator(passwordElement));
+
+  /** Handle Generic Validations */
+  function handleValidation(options: ValidationOptions) {
+    return function (inputElement: HTMLInputElement) {
+      let msg = '';
+      if (options.required && !inputElement.value) msg = 'Required';
+      else if (options.minLength && inputElement.value.length < options.minLength)
+        msg = `Shoulw have more than ${options.minLength} characters`;
+      else if (options.maxLength && inputElement.value.length > options.maxLength)
+        msg = `Shoulw have less than ${options.maxLength} characters`;
+      else if (options.validator && !options.validator[0].test(inputElement.value)) msg = options.validator[1];
+
+      const parentElement = inputElement.parentElement as HTMLDivElement;
+      const errorElement = parentElement.getElementsByClassName('field-error')[0] as HTMLDivElement;
+      errorElement.innerText = msg;
+      if (msg) {
+        parentElement.classList.add('mb-0');
+        errorElement.classList.remove('hidden');
+      } else {
+        parentElement.classList.remove('mb-0');
+        errorElement.classList.add('hidden');
+      }
+      console.log({ errorElement });
+      return !msg;
+    };
+  }
+
+  /** Sends an API request to sign in the user */
+  async function signin() {
+    const validEmail = emailValidator(emailElement);
+    const validPassword = passwordValidator(passwordElement);
+    if (!validEmail || !validPassword) return;
+
+    signinButton.innerText = 'Signing In...';
+    signinButton.disabled = true;
+
+    const query = `
+      mutation Login {
+        login(email: "${emailElement.value}", password: "${passwordElement.value}") {
+          uid email
+        } 
+      }
+    `;
+    const body = JSON.stringify({ query });
+    const headers = { 'Content-Type': 'application/json' };
+    const response = await fetch('/graphql', { method: 'POST', body, headers });
+    const result = await response.json();
+    if (result.data) {
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirectUrl') || '/';
+      window.location.href = redirectUrl;
+    }
+
+    const message = result.errors[0].message;
+    authErrorMessageElement.innerText = message;
+    authErrorElement.classList.add('flex');
+
+    signinButton.innerText = 'Sign In';
+    signinButton.disabled = false;
+  }
+</script>
