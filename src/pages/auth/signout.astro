@@ -1,0 +1,27 @@
+---
+/**
+ * Importing npm packages
+ */
+
+import { signOut } from '@app/lib';
+
+/**
+ * Importing user defined packages
+ */
+
+/**
+ * Importing components
+ */
+
+/**
+ * Defining types
+ */
+
+/**
+ * Declaring the constants
+ */
+const cookie = Astro.request.headers.get('cookie');
+const clearAllSessions = Astro.url.searchParams.get('as');
+if (cookie) await signOut(cookie, clearAllSessions === 'true');
+return Astro.redirect('/auth/signin');
+---

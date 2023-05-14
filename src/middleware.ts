@@ -25,14 +25,6 @@ declare global {
  */
 
 export async function onRequest(context: APIContext, next: MiddlewareNext<Response>) {
-  /** Handling logout request */
-  if (context.url.pathname === '/auth/signout') {
-    const cookie = context.request.headers.get('cookie');
-    const clearAllSessions = context.url.searchParams.get('as');
-    if (cookie) await signOut(cookie, clearAllSessions === 'true');
-    return context.redirect('/auth/signin');
-  }
-
   const allowUnauthenticated = context.url.pathname.startsWith('/auth/');
   const signinUrl = `/auth/signin?redirectUrl=${context.url.pathname}`;
 
