@@ -13,6 +13,7 @@ import { Image } from '@astrojs/image/components';
  */
 import Layout from '@app/layouts/Layout.astro';
 import Logo from '@assets/images/logo.png';
+import { Icon } from 'astro-icon';
 
 /**
  * Defining types
@@ -34,9 +35,7 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
       <div id='auth-error' class='error justify-between mt-5'>
         <div id='auth-error-message'></div>
         <div class='close'>
-          <svg class='mx-auto' width='20px' height='20px' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
-            <path d='M16 8L8 16M8.00001 8L16 16' stroke='#bbb' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'></path>
-          </svg>
+          <Icon width='20px' name='mdi:close' />
         </div>
       </div>
       <div class='card mt-5'>
@@ -48,16 +47,16 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
         <div class='field'>
           <div class='flex justify-between items-center'>
             <label for='password'>Password</label>
-            <a class='forgot-password text-primary-light' href='/auth/forgot-password'>Forgot password?</a>
+            <a class='forgot-password primary-light' href='/auth/forgot-password'>Forgot password?</a>
           </div>
           <input id='password' type='password' />
           <div class='field-error hidden'>No Errors</div>
         </div>
-        <button id='signin' class='btn btn-secondary text-white w-full my-2'>Sign In</button>
+        <button id='signin' class='btn bg-secondary text-white w-full my-2'>Sign In</button>
       </div>
       <div class='signup'>
         <p>Don't have an account?</p>
-        <a class='text-primary-light ml-2' href={redirectUrl ? `/auth/signup?redirectUrl=${redirectUrl}` : '/auth/signup'}>Sign Up</a>
+        <a class='primary-light ml-2' href={redirectUrl ? `/auth/signup?redirectUrl=${redirectUrl}` : '/auth/signup'}>Sign Up</a>
       </div>
     </div>
   </div>
@@ -65,7 +64,7 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
 
 <style>
   .error {
-    display: none;
+    /* display: none; */
     width: 400px;
     padding: 15px 5px 15px 20px;
     background-color: #4e1919;
@@ -85,8 +84,6 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
   }
 
   .field .field-error {
-    margin: 3px 0px 10px 2px;
-    color: #cf2929;
     font-size: 14px;
   }
 
@@ -182,18 +179,12 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
         } 
       }
     `;
-    const body = JSON.stringify({ query });
-    const headers = { 'Content-Type': 'application/json' };
-    const response = await fetch('/graphql', { method: 'POST', body, headers });
-    const result = await response.json();
-    if (result.data) {
-      const redirectUrl = new URLSearchParams(window.location.search).get('redirectUrl') || '/';
-      window.location.href = redirectUrl;
+    const result = await window.graphql(query);
+    if (result.success) window.location.href = new URLSearchParams(window.location.search).get('redirectUrl') || '/';
+    else {
+      authErrorMessageElement.innerText = result.error.message;
+      authErrorElement.classList.add('flex');
     }
-
-    const message = result.errors[0].message;
-    authErrorMessageElement.innerText = message;
-    authErrorElement.classList.add('flex');
 
     signinButton.innerText = 'Sign In';
     signinButton.disabled = false;

@@ -14,7 +14,7 @@ export interface UserSession {
   os?: string | null;
   device?: string | null;
   accessedAt: string;
-  currentSession: boolean;
+  currentSession?: boolean | null;
 }
 
 export interface User {
@@ -78,8 +78,9 @@ export async function getUser(cookie: string) {
   return response.data.viewer as User;
 }
 
-export async function signOut(cookie: string) {
-  await graphql('mutation Logout { logout }', { cookie });
+export async function signOut(cookie: string, clearAllSessions = false) {
+  const variables = { sessionId: clearAllSessions ? '*' : undefined };
+  await graphql('mutation($sessionId: String) Logout { logout(sessionId: $sessionId) }', { cookie, variables });
 }
 
 export async function verifyEmail(code: string) {

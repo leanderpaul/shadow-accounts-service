@@ -1,0 +1,190 @@
+---
+/**
+ * Importing npm packages
+ */
+import { Image } from '@astrojs/image/components';
+import { Icon } from 'astro-icon';
+
+/**
+ * Importing user defined packages
+ */
+
+/**
+ * Importing components
+ */
+import Logo from '@assets/images/shadow-accounts-logo.png';
+import Layout from '@app/layouts/Layout.astro';
+import CustomIcon from '@app/components/custom-icon.astro';
+import Profile from '@app/components/account/profile.astro';
+import Sessions from '@app/components/account/sessions.astro';
+import Security from '@app/components/account/security.astro';
+
+/**
+ * Defining types
+ */
+
+/**
+ * Declaring the constants
+ */
+const user = Astro.locals.user!;
+---
+
+<Layout title='Shadow Accounts'>
+  <div class='layout'>
+    <div id='sidenav' class='sidenav'>
+      <a class='mx-auto mb-5' href='/'>
+        <Image src={Logo} alt='Shadow Accounts Logo' width={225} />
+      </a>
+      <a class='nav-item' href='#profile' data-tab='profile'>
+        <Icon class='icon' name='mdi:account-box-outline' />
+        <div>Profile</div>
+      </a>
+      <a class='nav-item' href='#security' data-tab='security'>
+        <Icon class='icon' name='mdi:cellphone-key' />
+        <div>Security</div>
+      </a>
+      <a class='nav-item' href='#sessions' data-tab='sessions'>
+        <Icon class='icon' name='mdi:cookie' />
+        <div>Sessions</div>
+      </a>
+    </div>
+    <div class='flex-1'>
+      <div class='navbar'>
+        {user.imageUrl ? <img id='avatar' src={user.imageUrl} alt={user.name} /> : <Icon id='avatar' class='icon' name='mdi:account-circle' />}
+      </div>
+      <div id='dropdown' class='dropdown hidden'>
+        <div class='flex p-3 items-center'>
+          {user.imageUrl ? <img src={user.imageUrl} width='40px' height='40px' alt={user.name} /> : <Icon class='icon' name='mdi:account-circle' />}
+          <div class='ml-3'>
+            <div>{user.name}</div>
+            <div class='text-sm disabled'>{user.email}</div>
+          </div>
+        </div>
+        <div class='divider'></div>
+        <a class='py-3 px-4 flex bg-paper-hover cursor-pointer items-center' href='/auth/signout'>
+          <CustomIcon name='signout' />
+          <div class='ml-3'>Sign Out</div>
+        </a>
+      </div>
+      <div class='content'>
+        <Profile id='profile' class='' />
+        <Security id='security' class='mt-10' />
+        <Sessions id='sessions' class='mt-10' />
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .layout {
+    display: flex;
+    height: 100vh;
+  }
+
+  .icon {
+    width: 25px;
+    height: 25px;
+  }
+
+  .sidenav {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    height: 100%;
+    padding: 20px 0px;
+    background-color: var(--background-paper);
+    font-size: 16px;
+    border-right: 2px solid var(--divider);
+  }
+
+  .navbar {
+    width: 100%;
+    height: 60px;
+    background-color: var(--background-paper);
+    display: flex;
+    padding: 0px 30px;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .navbar > * {
+    cursor: pointer;
+  }
+
+  .navbar img,
+  #dropdown img {
+    border-radius: 50px;
+  }
+
+  .navbar img,
+  .navbar svg {
+    width: 35px;
+    height: 35px;
+  }
+
+  .nav-item {
+    margin: 3px 0px;
+    align-items: center;
+    display: flex;
+    padding: 10px 35px;
+  }
+
+  .nav-item > div {
+    margin-left: 20px;
+  }
+
+  .selected,
+  .nav-item:hover {
+    background-color: var(--background-paper-hover);
+  }
+
+  .selected {
+    color: var(--primary-light);
+  }
+
+  .dropdown {
+    position: absolute;
+    right: 20px;
+    top: 70px;
+    width: 300px;
+    font-size: 16px;
+    background-color: var(--background-paper);
+  }
+
+  .dropdown::before {
+    content: '';
+    border-left: 0.75rem solid transparent;
+    border-right: 0.75rem solid transparent;
+    border-bottom: 0.75rem solid var(--background-paper);
+    position: absolute;
+    top: -10px;
+    right: 12px;
+  }
+
+  .dropdown-item {
+    cursor: pointer;
+    padding: 5px 10px;
+    dispay: flex;
+    align-items: center;
+  }
+
+  .dropdown-item:hover {
+    background-color: var(--background-paper-hover);
+  }
+
+  .content {
+    height: calc(100% - 60px);
+    overflow-y: auto;
+    padding: 30px 50px;
+  }
+</style>
+
+<script>
+  /** Getting the required element */
+  const avatarElement = document.getElementById('avatar') as HTMLElement;
+  const dropdownElement = document.getElementById('dropdown') as HTMLDivElement;
+
+  /** Setting up event listeners */
+  document.addEventListener('click', () => !dropdownElement.classList.contains('hidden') && dropdownElement.classList.add('hidden'));
+  avatarElement.addEventListener('click', event => dropdownElement.classList.toggle('hidden') || event.stopPropagation());
+</script>

@@ -28,7 +28,8 @@ export async function onRequest(context: APIContext, next: MiddlewareNext<Respon
   /** Handling logout request */
   if (context.url.pathname === '/auth/signout') {
     const cookie = context.request.headers.get('cookie');
-    if (cookie) await signOut(cookie);
+    const clearAllSessions = context.url.searchParams.get('as');
+    if (cookie) await signOut(cookie, clearAllSessions === 'true');
     return context.redirect('/auth/signin');
   }
 

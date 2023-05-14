@@ -10,7 +10,6 @@
 /**
  * Importing components
  */
-import Layout from '@app/layouts/Layout.astro';
 
 /**
  * Defining types
@@ -19,11 +18,5 @@ import Layout from '@app/layouts/Layout.astro';
 /**
  * Declaring the constants
  */
+return Astro.redirect('/home');
 ---
-
-<Layout title='Shadow Account'>
-  <h1>Hello World</h1>
-  <a href='/auth/signin'>Sign In</a>
-  <a href='/auth/signup'>Sign Up</a>
-  <a href='/auth/signout'>Sign Out</a>
-</Layout>

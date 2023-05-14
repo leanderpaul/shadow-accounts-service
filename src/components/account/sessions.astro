@@ -1,0 +1,123 @@
+---
+/**
+ * Importing npm packages
+ */
+import moment from 'moment';
+
+/**
+ * Importing user defined packages
+ */
+
+/**
+ * Importing components
+ */
+
+/**
+ * Defining types
+ */
+export interface Props {
+  id: string;
+  class: string;
+}
+
+/**
+ * Declaring the constants
+ */
+const props = Astro.props as Props;
+const user = Astro.locals.user!;
+const sessions = user.sessions.sort((sessionA, sessionB) => (moment(sessionA.accessedAt).isBefore(sessionB.accessedAt) ? 1 : -1));
+---
+
+<div id={props.id} class={props.class}>
+  <div class='text-2xl ml-2'>Sessions</div>
+  <div class='card'>
+    <div class='flex mb-5'>
+      <div class='text-lg'>Everything you are using and signed into.</div>
+      <a href='/auth/signout?as=true' class='btn-outlined'>Sign out of all sessions</a>
+    </div>
+    <div>
+      {
+        sessions.map(session => (
+          <div class='session'>
+            <div>
+              <span>{session.device}</span>
+              <span>{session.os}</span>
+            </div>
+            <div>{session.browser}</div>
+            <div>{session.currentSession ? 'Current Session' : moment(session.accessedAt).fromNow()}</div>
+            <div>
+              <button disabled={session.currentSession ?? false}>Signout</button>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .card {
+    font-size: 16px;
+    margin-top: 20px;
+    background-color: var(--background-paper);
+    padding: 30px 40px;
+    border-radius: 5px;
+  }
+
+  .session {
+    border: 2px solid var(--divider);
+    padding: 15px 20px;
+    margin: 15px 0px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .session > div {
+    margin: auto 0px;
+  }
+
+  .session > div:last-child {
+    text-align: right;
+  }
+
+  .session > div:nth-child(3) {
+    text-align: center;
+  }
+
+  .session button {
+    margin-left: auto;
+    border: 2px solid var(--divider);
+    padding: 5px 20px;
+    font-weight: 400;
+    border-radius: 3px;
+  }
+
+  .session button:hover:not(:disabled) {
+    background-color: var(--divider);
+  }
+
+  .session button:disabled {
+    color: var(--text-disabled);
+  }
+
+  .btn-outlined {
+    cursor: pointer;
+    margin-left: auto;
+    padding: 5px 20px;
+    background-color: var(--primary);
+    border-radius: 3px;
+  }
+
+  .btn-outlined:hover {
+    background-color: var(--primary-dark);
+  }
+</style>
+<script>
+  import { Notify } from 'notiflix';
+
+  /** Getting the required element */
+  const signOutButtons = document.querySelectorAll('.session button') as NodeListOf<HTMLButtonElement>;
+
+  /** Setting up event listeners */
+  signOutButtons.forEach(button => button.addEventListener('click', () => Notify.info('API not yet implemented', { position: 'center-top' })));
+</script>

@@ -10,6 +10,7 @@
   --divider: #ffffff12;
   --background: #121212;
   --background-paper: #292929;
+  --background-paper-hover: #353535;
 
   --text: #aaa;
   --text-light: #ddd;
@@ -17,6 +18,7 @@
   --text-disabled: #6a6a6a;
 
   --error: #d74545;
+  --warning: #d29922;
 }
 
 body {
@@ -57,32 +59,43 @@ a {
   padding: 0.5rem 1rem;
   letter-spacing: 1px;
   transition: all 0.3s ease;
+}
+
+.bg-primary {
   background-color: var(--primary);
 }
 
-.btn-primary {
-  background-color: var(--primary);
-}
-
-.btn-secondary {
+.bg-secondary {
   background-color: var(--secondary-dark);
 }
 
-.btn-primary:not([disabled]):hover {
+.bg-error {
+  background-color: var(--error);
+}
+
+.btn.bg-primary:not([disabled]):hover {
   background-color: var(--primary-light);
 }
 
-.btn-secondary:disabled {
+.btn.bg-secondary:disabled {
   background-color: #215c05;
   color: var(--text-secondary);
 }
 
-.btn-secondary:not([disabled]):hover {
+.btn.bg-secondary:not([disabled]):hover {
   background-color: var(--secondary);
 }
 
-.text-primary-light {
+.primary-light {
   color: var(--primary-light);
+}
+
+.secondary {
+  color: var(--text-secondary);
+}
+
+.disabled {
+  color: var(--text-disabled);
 }
 
 .field {
@@ -107,6 +120,21 @@ a {
   background-image: none;
 }
 
+.field .field-error {
+  margin: 3px 0px 10px 2px;
+  color: #cf2929;
+  font-size: 13px;
+}
+
 .field input:focus {
   border-color: var(--primary);
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--divider);
+}
+
+.bg-paper-hover:hover {
+  background-color: var(--background-paper-hover);
 }

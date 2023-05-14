@@ -1,0 +1,167 @@
+---
+import { Icon } from 'astro-icon';
+import Modal from '../modal.astro';
+
+/**
+ * Importing npm packages
+ */
+
+/**
+ * Importing user defined packages
+ */
+
+/**
+ * Importing components
+ */
+
+/**
+ * Defining types
+ */
+export interface Props {
+  id: string;
+  class: string;
+}
+
+/**
+ * Declaring the constants
+ */
+const props = Astro.props as Props;
+---
+
+<div id={props.id} class={props.class}>
+  <div class='text-2xl ml-2'>Security</div>
+  <div class='card'>
+    <div>
+      <div>Password</div>
+      <div>
+        <div class='flex'>
+          {new Array(15).fill(0).map(_ => <Icon name='mdi:circle' />)}
+        </div>
+        <button id='password'>Change</button>
+      </div>
+    </div>
+  </div>
+  <Modal id='password-modal' addFooter={true}>
+    <span slot='title' class='text-lg'>Update Password</span>
+    <div slot='content'>
+      <div class='field'>
+        <label for='current-password'>Current Password</label>
+        <input id='current-password' type='password' />
+        <div class='field-error hidden'>No Errors</div>
+      </div>
+      <div class='field'>
+        <label for='new-password'>New Password</label>
+        <input id='new-password' type='password' />
+        <div class='field-error hidden'>No Errors</div>
+      </div>
+      <div class='field'>
+        <label for='confirm-password'>Confirm New Password</label>
+        <input id='confirm-password' type='password' />
+        <div class='field-error hidden'>No Errors</div>
+      </div>
+    </div>
+  </Modal>
+</div>
+
+<style>
+  .card {
+    margin-top: 20px;
+    background-color: var(--background-paper);
+    padding: 0px 20px;
+    border-radius: 5px;
+  }
+
+  .card > div:nth-child(odd) {
+    display: grid;
+    font-size: 16px;
+    padding: 1.75rem 1.5rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .card > div > div:nth-child(2) {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    grid-column: span 3 / span 3;
+  }
+
+  .card > div > div:nth-child(1) {
+    margin: auto 0px;
+  }
+
+  .card button {
+    margin-left: auto;
+    border: 2px solid var(--divider);
+    padding: 5px 20px;
+    font-weight: 400;
+    border-radius: 3px;
+  }
+
+  .card button:hover {
+    background-color: var(--divider);
+  }
+
+  svg {
+    width: 8px;
+    margin-left: 4px;
+  }
+</style>
+<script>
+  import { Notify } from 'notiflix';
+
+  /** Getting the required element */
+  const passwordModal = document.getElementById('password-modal') as HTMLDivElement;
+  const changePasswordButton = document.getElementById('password') as HTMLButtonElement;
+  const submitButton = passwordModal.querySelector('.submit') as HTMLButtonElement;
+
+  /** Setting up event listeners */
+  changePasswordButton.addEventListener('click', () => passwordModal.classList.remove('hidden'));
+  submitButton.addEventListener('click', handleUpdatePassword);
+
+  async function handleUpdatePassword() {
+    const currentPasswordElement = document.getElementById('current-password') as HTMLInputElement;
+    const newPasswordElement = document.getElementById('new-password') as HTMLInputElement;
+    const confirmPasswordElement = document.getElementById('confirm-password') as HTMLInputElement;
+    let hasError = false;
+
+    const currentPasswordErrorElement = currentPasswordElement.parentElement?.querySelector('.field-error')!;
+    if (!currentPasswordElement.value) {
+      currentPasswordErrorElement.innerHTML = 'Required';
+      currentPasswordErrorElement.classList.remove('hidden');
+      hasError = true;
+    } else currentPasswordErrorElement.classList.add('hidden');
+
+    const newPasswordErrorElement = newPasswordElement.parentElement?.querySelector('.field-error')!;
+    if (newPasswordElement.value.length < 8 || newPasswordElement.value.length > 32) {
+      newPasswordErrorElement.innerHTML = 'Should have atleast 8 characters and less than 32 characters';
+      newPasswordErrorElement.classList.remove('hidden');
+      hasError = true;
+    } else if (!/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/.test(newPasswordElement.value)) {
+      newPasswordErrorElement.innerHTML = 'Should have atleast 1 lowercase, 1 uppercase, 1 number and 1 special character';
+      newPasswordErrorElement.classList.remove('hidden');
+      hasError = true;
+    } else newPasswordErrorElement.classList.add('hidden');
+
+    const confirmPasswordErrorElement = confirmPasswordElement.parentElement?.querySelector('.field-error')!;
+    if (confirmPasswordElement.value != newPasswordElement.value) {
+      confirmPasswordErrorElement.innerHTML = 'Passwords do not match';
+      confirmPasswordErrorElement.classList.remove('hidden');
+      hasError = true;
+    } else confirmPasswordErrorElement.classList.add('hidden');
+
+    if (hasError) return;
+
+    const query = `mutation UpdatePassword { updatePassword(oldPassword: "${currentPasswordElement.value}", newPassword: "${newPasswordElement.value}") }`;
+    submitButton.innerText = 'Updating...';
+    submitButton.disabled = true;
+    const response = await window.graphql(query);
+    submitButton.innerText = 'Update';
+    submitButton.disabled = false;
+    if (response.success) {
+      Notify.success('Password updated successfully', { position: 'center-top' });
+      passwordModal.classList.add('hidden');
+      return;
+    }
+    Notify.failure(response.error.message, { position: 'center-top' });
+  }
+</script>

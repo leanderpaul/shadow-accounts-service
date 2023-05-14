@@ -1,0 +1,93 @@
+---
+import { Icon } from 'astro-icon';
+
+/**
+ * Importing npm packages
+ */
+
+/**
+ * Importing user defined packages
+ */
+
+/**
+ * Importing components
+ */
+
+/**
+ * Defining types
+ */
+export interface Props {
+  id: string;
+  addFooter?: boolean;
+}
+
+/**
+ * Declaring the constants
+ */
+const props = Astro.props as Props;
+---
+
+<div id={props.id} class='flex modal hidden'>
+  <div class='body'>
+    <div class='title'>
+      <slot name='title' />
+      <Icon class='close cursor-pointer' width='20px' name='mdi:close' />
+    </div>
+    <div class='divider'></div>
+    <div class='content'>
+      <slot name='content' />
+      {
+        props.addFooter && (
+          <div class='flex justify-end'>
+            <button class='btn bg-error close'>Cancel</button>
+            <button class='btn bg-primary ml-5 submit'>Update</button>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</div>
+
+<style>
+  .modal {
+    z-index: 100;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.5);
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .modal .body {
+    margin-top: 200px;
+    width: 500px;
+    border-radius: 3px;
+    background-color: var(--background-paper);
+  }
+
+  .modal .title {
+    display: flex;
+    padding: 20px 30px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal .content {
+    padding: 20px 30px;
+  }
+</style>
+
+<script>
+  /** Getting the required element */
+  const modals = document.querySelectorAll('.modal') as NodeListOf<HTMLDivElement>;
+
+  /** Setting up event listeners */
+  window.addEventListener('click', event => modals.forEach(modal => event.target === modal && modal.classList.add('hidden')));
+  modals.forEach(modal => {
+    const closeElements = modal.querySelectorAll('.close');
+    closeElements.forEach(close => close.addEventListener('click', () => modal.classList.add('hidden')));
+  });
+</script>

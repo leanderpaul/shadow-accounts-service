@@ -1,0 +1,225 @@
+---
+/**
+ * Importing npm packages
+ */
+
+/**
+ * Importing user defined packages
+ */
+
+/**
+ * Importing components
+ */
+import { Icon } from 'astro-icon';
+
+import Modal from '../modal.astro';
+
+/**
+ * Defining types
+ */
+export interface Props {
+  id: string;
+  class: string;
+}
+
+/**
+ * Declaring the constants
+ */
+const props = Astro.props as Props;
+const user = Astro.locals.user!;
+---
+
+<div id={props.id} class={props.class}>
+  <div class='text-2xl ml-2'>Profile</div>
+  <div class='card'>
+    <div>
+      <div>Picture</div>
+      <div id='picture'>
+        {user.imageUrl ? <img src={user.imageUrl} alt={user.name} /> : <Icon class='icon' name='mdi:account-circle' />}
+        <button>change</button>
+      </div>
+    </div>
+    <div class='divider'></div>
+    <div>
+      <div class='my-auto'>Name</div>
+      <div id='name'>
+        <div>{user.name}</div>
+        <button>change</button>
+      </div>
+    </div>
+    <div class='divider'></div>
+    <div>
+      <div>Email address</div>
+      <div>
+        <span>{user.email}</span>
+        {
+          user.verified ? (
+            <span class='verified-badge'>Verified</span>
+          ) : (
+            <>
+              <span class='unverified-badge'>Unverified</span>
+              <span class='link'>Resend verification email</span>
+            </>
+          )
+        }
+      </div>
+    </div>
+  </div>
+  <Modal id='name-modal' addFooter={true}>
+    <span slot='title' class='text-lg'>Update Name</span>
+    <div slot='content'>
+      <div class='field'>
+        <label for='edit-name'>Name</label>
+        <input id='edit-name' type='text' value={user.name} />
+        <div class='field-error hidden'>No Errors</div>
+      </div>
+    </div>
+  </Modal>
+  <Modal id='picture-modal' addFooter={true}>
+    <span slot='title' class='text-lg'>Update Profile Picture</span>
+    <div slot='content'>
+      <div class='field'>
+        <label for='edit-picture'>Profile picture URL</label>
+        <input id='edit-picture' type='text' value={user.imageUrl || ''} />
+        <div class='field-error hidden'>No Errors</div>
+      </div>
+    </div>
+  </Modal>
+</div>
+
+<style>
+  .card {
+    margin-top: 20px;
+    background-color: var(--background-paper);
+    padding: 0px 20px;
+    border-radius: 5px;
+  }
+
+  .card > div:nth-child(odd) {
+    display: grid;
+    font-size: 16px;
+    padding: 1.75rem 1.5rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .card > div > div:nth-child(2) {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    grid-column: span 3 / span 3;
+  }
+
+  .card > div > div:nth-child(1) {
+    margin: auto 0px;
+  }
+
+  img,
+  svg {
+    width: 60px;
+    height: 60px;
+    border-radius: 50px;
+  }
+
+  .verified-badge {
+    color: var(--secondary);
+    border: 1px solid var(--secondary);
+  }
+
+  .unverified-badge {
+    color: var(--warning);
+    border: 1px solid var(--warning);
+  }
+
+  .verified-badge,
+  .unverified-badge,
+  span.link {
+    font-size: 14px;
+    margin-left: 10px;
+    font-weight: 400;
+    padding: 3px 10px;
+    border-radius: 25px;
+  }
+
+  span.link {
+    color: var(--primary);
+    cursor: pointer;
+  }
+
+  span.link:hover {
+    color: var(--primary-dark);
+  }
+
+  .card button {
+    margin-left: auto;
+    border: 2px solid var(--divider);
+    padding: 5px 20px;
+    font-weight: 400;
+    border-radius: 3px;
+  }
+
+  .card button:hover {
+    background-color: var(--divider);
+  }
+
+  .edit-field {
+    width: 300px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-weight: 400;
+    outline: none;
+    background-color: var(--background-paper);
+    border: 1px solid var(--divider);
+    background-image: none;
+  }
+
+  .edit-field:focus {
+    border-color: var(--primary);
+  }
+</style>
+<script>
+  import { Notify } from 'notiflix';
+
+  /** Getting the required element */
+  const nameElement = document.getElementById('name') as HTMLDivElement;
+  const pictureElement = document.getElementById('picture') as HTMLDivElement;
+  const editNameModal = document.getElementById('name-modal') as HTMLDivElement;
+  const editPictureModal = document.getElementById('picture-modal') as HTMLDivElement;
+
+  /** Setting up event listeners */
+  nameElement.querySelector('button')?.addEventListener('click', () => editNameModal.classList.remove('hidden'));
+  pictureElement.querySelector('button')?.addEventListener('click', () => editPictureModal.classList.remove('hidden'));
+  editNameModal.querySelector('.submit')?.addEventListener('click', handleNameUpdate);
+  editPictureModal.querySelector('.submit')?.addEventListener('click', handlePictureUpdate);
+
+  async function handleNameUpdate() {
+    const input = editNameModal.querySelector('#edit-name') as HTMLInputElement;
+    const errorElement = editNameModal.querySelector('.field-error')!;
+    if (!/^[a-zA-Z ]{3,32}$/.test(input.value)) {
+      errorElement.innerHTML = 'Should be a valid name';
+      errorElement.classList.remove('hidden');
+      return;
+    }
+
+    errorElement.classList.add('hidden');
+    const originalValue = nameElement.querySelector('div')?.innerText as string;
+    if (input.value.trim() === originalValue.trim()) return editNameModal.classList.add('hidden');
+    Notify.info('Edit name API not yet implemented', { position: 'center-top' });
+  }
+
+  function handlePictureUpdate() {
+    const input = editPictureModal.querySelector('#edit-picture') as HTMLInputElement;
+    const errorElement = editPictureModal.querySelector('.field-error')!;
+    try {
+      new URL(input.value);
+      errorElement.classList.add('hidden');
+    } catch (err) {
+      errorElement.innerHTML = 'Should be a valid URL';
+      errorElement.classList.remove('hidden');
+      return;
+    }
+
+    const originalValue = pictureElement.querySelector('img')?.src as string;
+    if (!input.value.trim() || (originalValue && input.value.trim() === originalValue.trim())) return editPictureModal.classList.add('hidden');
+    Notify.info('Edit picture API not yet implemented', { position: 'center-top' });
+  }
+</script>

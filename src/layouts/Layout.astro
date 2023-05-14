@@ -8,17 +8,19 @@
  */
 
 /**
- * Defining types
+ * Importing components
  */
 
 /**
- * Declaring the constants
+ * Defining types
  */
-
 export interface Props {
   title: string;
 }
 
+/**
+ * Declaring the constants
+ */
 const props = Astro.props as Props;
 ---
 
@@ -36,5 +38,15 @@ const props = Astro.props as Props;
   </head>
   <body>
     <slot />
+    <script is:inline>
+      window.graphql = async function (query, variables) {
+        const body = JSON.stringify({ query, variables });
+        const headers = { 'Content-Type': 'application/json' };
+        const response = await fetch('/graphql', { method: 'POST', body, headers });
+        const result = await response.json();
+        if (result.errors) return { success: false, error: result.errors[0], errors: result.errors };
+        return { success: true, data: result.data };
+      };
+    </script>
   </body>
 </html>
