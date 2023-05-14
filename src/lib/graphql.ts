@@ -36,7 +36,6 @@ interface GraphQLOptions {
  * Declaring the constants
  */
 const ARCHIVE_GRAPHQL_ENDPOINT: string = import.meta.env.ARCHIVE_GRAPHQL_ENDPOINT || 'https://archive.dev.shadow-apps.com/graphql/accounts';
-const APP_NAME: string = import.meta.env.APP_NAME || 'local-accounts-setup';
 
 const GET_USER = /* GraphQL */ `
   query GetCurrentUser {
@@ -65,7 +64,7 @@ const VERIFY_USER = /* GraphQL */ `
 `;
 
 async function graphql(query: string, options: GraphQLOptions = {}) {
-  let headers: Record<string, string> = { 'Content-Type': 'application/json', service: APP_NAME };
+  let headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (options.cookie) headers.cookie = options.cookie;
   const body = JSON.stringify({ query, variables: options.variables });
   const response = await fetch(ARCHIVE_GRAPHQL_ENDPOINT, { method: 'post', body, headers });
