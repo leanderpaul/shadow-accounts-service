@@ -80,7 +80,7 @@ const user = Astro.locals.user!;
     <div slot='content'>
       <div class='field'>
         <label for='edit-picture'>Profile picture URL</label>
-        <input id='edit-picture' type='text' value={user.imageUrl || ''} />
+        <input id='edit-picture' value={user.imageUrl || ''} autocomplete='off' />
         <div class='field-error hidden'>No Errors</div>
       </div>
     </div>
@@ -179,6 +179,8 @@ const user = Astro.locals.user!;
 <script>
   import { Notify } from 'notiflix';
 
+  const query = `mutation($name: String, $imageUrl: String) { updateUserProfile(name: $name, imageUrl: $imageUrl) { name, imageUrl } }`;
+
   /** Getting the required element */
   const nameElement = document.getElementById('name') as HTMLDivElement;
   const pictureElement = document.getElementById('picture') as HTMLDivElement;
@@ -203,10 +205,23 @@ const user = Astro.locals.user!;
     errorElement.classList.add('hidden');
     const originalValue = nameElement.querySelector('div')?.innerText as string;
     if (input.value.trim() === originalValue.trim()) return editNameModal.classList.add('hidden');
-    Notify.info('Edit name API not yet implemented', { position: 'center-top' });
+
+    const button = editNameModal.querySelector('.submit') as HTMLButtonElement;
+    button.innerText = 'Updating...';
+    button.disabled = true;
+
+    const result = await window.graphql(query, { name: input.value });
+    if (result.success) {
+      nameElement.querySelector('div')!.innerText = result.data.updateUserProfile.name;
+      Notify.success('Profile updated successfully', { position: 'center-top' });
+      (editNameModal.querySelector('button.close') as HTMLButtonElement).click();
+    } else Notify.failure(result.error.message, { position: 'center-top' });
+
+    button.innerText = 'Update';
+    button.disabled = false;
   }
 
-  function handlePictureUpdate() {
+  async function handlePictureUpdate() {
     const input = editPictureModal.querySelector('#edit-picture') as HTMLInputElement;
     const errorElement = editPictureModal.querySelector('.field-error')!;
     try {
@@ -220,6 +235,28 @@ const user = Astro.locals.user!;
 
     const originalValue = pictureElement.querySelector('img')?.src as string;
     if (!input.value.trim() || (originalValue && input.value.trim() === originalValue.trim())) return editPictureModal.classList.add('hidden');
-    Notify.info('Edit picture API not yet implemented', { position: 'center-top' });
+
+    const button = editPictureModal.querySelector('.submit') as HTMLButtonElement;
+    button.innerText = 'Updating...';
+    button.disabled = true;
+
+    const result = await window.graphql(query, { imageUrl: input.value });
+    if (result.success) {
+      const svg = pictureElement.querySelector('svg');
+      if (svg) {
+        pictureElement.removeChild(svg);
+        const image = document.createElement('img');
+        image.src = result.data.updateUserProfile.imageUrl;
+        image.alt = result.data.updateUserProfile.name;
+        image.className = pictureElement.className;
+        pictureElement.prepend(image);
+      } else pictureElement.querySelector('img')!.src = result.data.updateUserProfile.imageUrl;
+
+      Notify.success('Profile updated successfully', { position: 'center-top' });
+      (editPictureModal.querySelector('button.close') as HTMLButtonElement).click();
+    } else Notify.failure(result.error.message, { position: 'center-top' });
+
+    button.innerText = 'Update';
+    button.disabled = false;
   }
 </script>

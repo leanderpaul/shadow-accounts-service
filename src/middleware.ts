@@ -6,7 +6,7 @@ import { APIContext, MiddlewareNext } from 'astro';
 /**
  * Importing user defined packages
  */
-import { type User, getUser, signOut } from './lib';
+import { type User, getUser } from './lib';
 
 /**
  * Defining types

@@ -8,7 +8,6 @@
     },
     {
       "source": "/graphql",
-      "has": [{ "type": "host", "value": "accounts.dev.shadow-apps.com" }],
       "destination": "https://archive.dev.shadow-apps.com/graphql/accounts"
     }
   ]

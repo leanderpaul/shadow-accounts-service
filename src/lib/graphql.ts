@@ -10,11 +10,12 @@
  * Defining types
  */
 export interface UserSession {
+  id: number;
   browser?: string | null;
   os?: string | null;
   device?: string | null;
   accessedAt: string;
-  currentSession?: boolean | null;
+  currentSession: boolean;
 }
 
 export interface User {
@@ -47,6 +48,7 @@ const GET_USER = /* GraphQL */ `
       imageUrl
       csrfToken
       sessions {
+        id
         browser
         os
         device
@@ -78,7 +80,7 @@ export async function getUser(cookie: string) {
 }
 
 export async function signOut(cookie: string, clearAllSessions = false) {
-  const variables = { sessionId: clearAllSessions ? '*' : undefined };
+  const variables = { sessionId: clearAllSessions ? -1 : null };
   await graphql('mutation Logout($sessionId: String) { logout(sessionId: $sessionId) }', { cookie, variables });
 }
 
