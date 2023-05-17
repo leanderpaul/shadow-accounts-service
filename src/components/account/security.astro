@@ -160,6 +160,8 @@ const props = Astro.props as Props;
     if (response.success) {
       Notify.success('Password updated successfully', { position: 'center-top' });
       passwordModal.classList.add('hidden');
+      const inputFields = passwordModal.querySelectorAll('input') as NodeListOf<HTMLInputElement>;
+      inputFields.forEach(input => (input.value = ''));
       return;
     }
     Notify.failure(response.error.message, { position: 'center-top' });

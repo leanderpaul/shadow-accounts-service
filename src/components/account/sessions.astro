@@ -38,15 +38,19 @@ const sessions = user.sessions.sort((sessionA, sessionB) => (moment(sessionA.acc
     <div>
       {
         sessions.map(session => (
-          <div class='session'>
+          <div id={`session-${session.id}`} class='session'>
             <div>
               <span>{session.device}</span>
-              <span>{session.os}</span>
             </div>
-            <div>{session.browser}</div>
+            <div class='flex flex-col'>
+              <span>{session.os}</span>
+              <span class='text-sm disabled'>{session.browser}</span>
+            </div>
             <div>{session.currentSession ? 'Current Session' : moment(session.accessedAt).fromNow()}</div>
             <div>
-              <button disabled={session.currentSession ?? false}>Signout</button>
+              <button data-session-id={session.id} disabled={session.currentSession}>
+                Signout
+              </button>
             </div>
           </div>
         ))
@@ -119,5 +123,23 @@ const sessions = user.sessions.sort((sessionA, sessionB) => (moment(sessionA.acc
   const signOutButtons = document.querySelectorAll('.session button') as NodeListOf<HTMLButtonElement>;
 
   /** Setting up event listeners */
-  signOutButtons.forEach(button => button.addEventListener('click', () => Notify.info('API not yet implemented', { position: 'center-top' })));
+  signOutButtons.forEach(button => button.addEventListener('click', () => signout(button)));
+
+  async function signout(button: HTMLButtonElement) {
+    const dataset = button.dataset;
+    const sessionId = parseInt(dataset.sessionId!);
+
+    button.innerText = 'Signing Out...';
+    button.disabled = true;
+
+    const result = await window.graphql(`mutation($sessionId: Int) { logout(sessionId: $sessionId) }`, { sessionId });
+    if (result.success) {
+      document.getElementById(`session-${sessionId}`)?.remove();
+      Notify.success('Session removed successfully !', { position: 'center-top' });
+    } else {
+      Notify.failure(result.error.message, { position: 'center-top' });
+      button.innerText = 'Sign Out';
+      button.disabled = false;
+    }
+  }
 </script>

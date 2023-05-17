@@ -158,7 +158,6 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
         parentElement.classList.remove('mb-0');
         errorElement.classList.add('hidden');
       }
-      console.log({ errorElement });
       return !msg;
     };
   }
@@ -172,13 +171,7 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
     signinButton.innerText = 'Signing In...';
     signinButton.disabled = true;
 
-    const query = `
-      mutation Login {
-        login(email: "${emailElement.value}", password: "${passwordElement.value}") {
-          uid email
-        } 
-      }
-    `;
+    const query = `mutation Login { login(email: "${emailElement.value}", password: "${passwordElement.value}") { uid email } }`;
     const result = await window.graphql(query);
     if (result.success) window.location.href = new URLSearchParams(window.location.search).get('redirectUrl') || '/';
     else {

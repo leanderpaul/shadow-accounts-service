@@ -166,7 +166,6 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
         parentElement.classList.remove('mb-0');
         errorElement.classList.add('hidden');
       }
-      console.log({ errorElement });
       return !msg;
     };
   }
@@ -181,19 +180,10 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
     signupButton.innerText = 'Signing Up...';
     signupButton.disabled = true;
 
-    const query = `
-      mutation Register { 
-        register(name: "${nameElement.value}", email: "${emailElement.value}", password: "${passwordElement.value}") {
-          uid email
-        } 
-      }
-    `;
+    const query = `mutation Register { register(name: "${nameElement.value}", email: "${emailElement.value}", password: "${passwordElement.value}") { uid email } }`;
     const result = await window.graphql(query);
     if (result.success) window.location.href = new URLSearchParams(window.location.search).get('redirectUrl') || '/';
-    else {
-      authErrorMessageElement.innerText = result.error.message;
-      authErrorElement.classList.add('flex');
-    }
+    else (authErrorMessageElement.innerText = result.error.message), authErrorElement.classList.add('flex');
 
     signupButton.innerText = 'Sign Up';
     signupButton.disabled = false;
