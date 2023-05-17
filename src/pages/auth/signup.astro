@@ -22,7 +22,6 @@ import { Icon } from 'astro-icon';
 /**
  * Declaring the constants
  */
-export const prerender = true;
 const redirectUrl = new URLSearchParams(Astro.url.search).get('redirectUrl');
 if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
 ---
