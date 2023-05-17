@@ -65,11 +65,15 @@ const VERIFY_USER = /* GraphQL */ `
   }
 `;
 
-async function graphql(query: string, options: GraphQLOptions = {}) {
+async function rawGraphql(query: string, options: GraphQLOptions = {}) {
   let headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (options.cookie) headers.cookie = options.cookie;
   const body = JSON.stringify({ query, variables: options.variables });
-  const response = await fetch(ARCHIVE_GRAPHQL_ENDPOINT, { method: 'post', body, headers });
+  return await fetch(ARCHIVE_GRAPHQL_ENDPOINT, { method: 'post', body, headers });
+}
+
+async function graphql(query: string, options: GraphQLOptions = {}) {
+  const response = await rawGraphql(query, options);
   return await response.json();
 }
 
@@ -81,7 +85,7 @@ export async function getUser(cookie: string) {
 
 export async function signOut(cookie: string, clearAllSessions = false) {
   const variables = { sessionId: clearAllSessions ? -1 : null };
-  await graphql('mutation Logout($sessionId: String) { logout(sessionId: $sessionId) }', { cookie, variables });
+  return await rawGraphql('mutation Logout($sessionId: Int) { logout(sessionId: $sessionId) }', { cookie, variables });
 }
 
 export async function verifyEmail(code: string) {

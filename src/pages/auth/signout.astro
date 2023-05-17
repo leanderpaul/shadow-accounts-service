@@ -20,8 +20,15 @@ import { signOut } from '@app/lib';
 /**
  * Declaring the constants
  */
+const response = Astro.redirect('/auth/signin');
 const cookie = Astro.request.headers.get('cookie');
 const clearAllSessions = Astro.url.searchParams.get('as');
-if (cookie) await signOut(cookie, clearAllSessions === 'true');
-return Astro.redirect('/auth/signin');
+
+if (cookie) {
+  const { headers } = await signOut(cookie, clearAllSessions === 'true');
+  const newCookie = headers.get('Set-Cookie');
+  if (newCookie) response.headers.set('Set-Cookie', newCookie);
+}
+
+return response;
 ---
