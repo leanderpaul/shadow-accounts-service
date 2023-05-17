@@ -129,7 +129,7 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
   signinButton.addEventListener('click', () => signin());
 
   const close = document.querySelector('#auth-error .close') as HTMLDivElement;
-  close.addEventListener('click', () => authErrorElement.classList.remove('flex'));
+  close.addEventListener('click', () => (authErrorElement.style.display = 'none'));
 
   const emailRegex = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]{1,32}@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
   const emailError = 'Invalid email address';
@@ -176,7 +176,7 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
     if (result.success) window.location.href = new URLSearchParams(window.location.search).get('redirectUrl') || '/';
     else {
       authErrorMessageElement.innerText = result.error.message;
-      authErrorElement.classList.add('flex');
+      authErrorElement.style.display = 'flex';
     }
 
     signinButton.innerText = 'Sign In';

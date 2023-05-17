@@ -130,7 +130,7 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
   signupButton.addEventListener('click', () => signup());
 
   const close = document.querySelector('#auth-error .close') as HTMLDivElement;
-  close.addEventListener('click', () => authErrorElement.classList.remove('flex'));
+  close.addEventListener('click', () => (authErrorElement.style.display = 'none'));
 
   const nameRegex = /^[a-zA-Z ]{3,32}$/;
   const nameError = 'Should only contain alphabets and spaces';
@@ -183,7 +183,7 @@ if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
     const query = `mutation Register { register(name: "${nameElement.value}", email: "${emailElement.value}", password: "${passwordElement.value}") { uid email } }`;
     const result = await window.graphql(query);
     if (result.success) window.location.href = new URLSearchParams(window.location.search).get('redirectUrl') || '/';
-    else (authErrorMessageElement.innerText = result.error.message), authErrorElement.classList.add('flex');
+    else (authErrorMessageElement.innerText = result.error.message), (authErrorElement.style.display = 'flex');
 
     signupButton.innerText = 'Sign Up';
     signupButton.disabled = false;
