@@ -94,6 +94,10 @@ a {
   color: var(--text-secondary);
 }
 
+.error {
+  color: var(--error);
+}
+
 .disabled {
   color: var(--text-disabled);
 }

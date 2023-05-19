@@ -65,6 +65,12 @@ const VERIFY_USER = /* GraphQL */ `
   }
 `;
 
+const RESET_PASSWORD = /* GraphQL */ `
+  mutation VerifyResetPasswordToken($code: String!) {
+    resetPassword(code: $code, newPassword: "")
+  }
+`;
+
 async function rawGraphql(query: string, options: GraphQLOptions = {}) {
   let headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (options.cookie) headers.cookie = options.cookie;
@@ -91,4 +97,9 @@ export async function signOut(cookie: string, clearAllSessions = false) {
 export async function verifyEmail(code: string) {
   const response = await graphql(VERIFY_USER, { variables: { code } });
   return (response.errors?.[0]?.message as string) || 'Email address verified successfully';
+}
+
+export async function verifyResetPasswordToken(code: string) {
+  const response = await graphql(RESET_PASSWORD, { variables: { code } });
+  return !!response.data;
 }
