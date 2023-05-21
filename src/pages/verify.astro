@@ -1,0 +1,68 @@
+---
+/**
+ * Importing npm packages
+ */
+
+/**
+ * Importing user defined packages
+ */
+
+/**
+ * Importing components
+ */
+import Layout from '@app/layouts/Layout.astro';
+
+/**
+ * Defining types
+ */
+
+/**
+ * Declaring the constants
+ */
+
+const user = Astro.locals.user;
+if (user?.verified) return Astro.redirect('/home');
+const name = user?.name.split(' ')[0] || 'User';
+---
+
+<Layout title='Verify Email - Shadow Accounts' error={!user ? 'page-not-found' : null}>
+  <div class='screen py-20 flex-center'>
+    <div class='card'>
+      <h1 class='text-3xl'>Verify Your Email</h1>
+      <div class='text-lg mt-10'>Hello {name}, Check your mail and click the link to activate your account</div>
+      <img class='mx-auto mt-10' src='/assets/images/verify-email.png' width='150px' alt='' />
+      <button id='resend-email' class='btn bg-primary mt-10 w-56'>Resend Email</button>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .card {
+    background-color: var(--background-paper);
+    width: 50%;
+    height: 500px;
+    padding: 50px;
+    border-radius: 3px;
+    text-align: center;
+  }
+</style>
+
+<script>
+  import { Notify } from 'notiflix';
+
+  /** Getting the required element */
+  const resendEmailButton = document.getElementById('resend-email') as HTMLButtonElement;
+
+  /** Setting up event listeners */
+  resendEmailButton.addEventListener('click', () => resendEmail());
+
+  async function resendEmail() {
+    resendEmailButton.innerText = 'Sending...';
+    resendEmailButton.disabled = true;
+    const response = await window.graphql(`mutation { resendEmailVerificationMail }`);
+    if (response.success) Notify.success('Email verification mail sent', { position: 'center-top' });
+    else Notify.failure(response.error.message, { position: 'center-top' });
+    resendEmailButton.innerText = 'Resend Email';
+    resendEmailButton.disabled = false;
+  }
+</script>
