@@ -22,6 +22,7 @@ export const config = {
 
 export default async function middleware(request: Request) {
   if (request.method === 'POST') {
+    console.log(process.env);
     const headers = new Headers(request.headers);
     headers.set('x-shadow-server', 'accounts');
     return rewrite(`https://${SHADOW_ARCHIVE_HOSTNAME}/graphql/accounts`, { request: { headers } });
