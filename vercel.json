@@ -3,11 +3,15 @@
   "rewrites": [
     {
       "source": "/graphql",
-      "has": [{ "type": "host", "value": "accounts.shadow-apps.com" }],
+      "has": [
+        { "type": "host", "value": "accounts.shadow-apps.com" },
+        { "type": "header", "key": "x-shadow-service", "value": "accounts" }
+      ],
       "destination": "https://archive.shadow-apps.com/graphql/accounts"
     },
     {
       "source": "/graphql",
+      "has": [{ "type": "header", "key": "x-shadow-service", "value": "accounts" }],
       "destination": "https://archive.dev.shadow-apps.com/graphql/accounts"
     }
   ]
