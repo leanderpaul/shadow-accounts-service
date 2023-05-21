@@ -1,7 +1,7 @@
 /**
  * Importing npm packages
  */
-import { next } from '@vercel/edge';
+import { rewrite } from '@vercel/edge';
 
 /**
  * Importing user defined packages
@@ -14,12 +14,18 @@ import { next } from '@vercel/edge';
 /**
  * Declaring the constants
  */
+const SHADOW_ARCHIVE_HOSTNAME = process.env.SHADOW_ARCHIVE_HOSTNAME || 'archive.dev.shadow-apps.com';
+
 export const config = {
   matcher: '/graphql',
 };
 
 export default async function middleware(request: Request) {
-  const service = request.headers.get('x-shadow-service');
-  if (service) return next({ headers: { 'x-shadow-service': 'user-defined-' + service } });
-  return request.method === 'post' ? next({ headers: { 'x-shadow-service': 'accounts' } }) : next();
+  if (request.method === 'POST') {
+    const headers = new Headers(request.headers);
+    headers.set('x-shadow-server', 'accounts');
+    return rewrite(`https://${SHADOW_ARCHIVE_HOSTNAME}/graphql/accounts`, { request: { headers } });
+  }
+
+  return;
 }
