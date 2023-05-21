@@ -7,6 +7,7 @@ import { Image } from '@astrojs/image/components';
 /**
  * Importing user defined packages
  */
+import { Guard } from '@app/lib';
 
 /**
  * Importing components
@@ -22,8 +23,9 @@ import { Icon } from 'astro-icon';
 /**
  * Declaring the constants
  */
+const result = Guard.checkAccess('unauthenticated', Astro);
+if (!result.canAccess) return result.redirect();
 const redirectUrl = new URLSearchParams(Astro.url.search).get('redirectUrl');
-if (Astro.locals.user) return Astro.redirect(redirectUrl || '/');
 ---
 
 <Layout title='Sign In - Shadow Accounts'>

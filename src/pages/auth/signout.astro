@@ -3,7 +3,7 @@
  * Importing npm packages
  */
 
-import { signOut } from '@app/lib';
+import { GraphQL } from '@app/lib';
 
 /**
  * Importing user defined packages
@@ -25,7 +25,7 @@ const cookie = Astro.request.headers.get('cookie');
 const clearAllSessions = Astro.url.searchParams.get('as');
 
 if (cookie) {
-  const { headers } = await signOut(cookie, clearAllSessions === 'true');
+  const { headers } = await GraphQL.signOut(cookie, clearAllSessions === 'true');
   const newCookie = headers.get('Set-Cookie');
   if (newCookie) response.headers.set('Set-Cookie', newCookie);
 }

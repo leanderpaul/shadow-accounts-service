@@ -8,6 +8,7 @@ import { Icon } from 'astro-icon';
 /**
  * Importing user defined packages
  */
+import { Guard } from '@app/lib';
 
 /**
  * Importing components
@@ -26,6 +27,8 @@ import Security from '@app/components/account/security.astro';
 /**
  * Declaring the constants
  */
+const result = Guard.checkAccess('verified', Astro);
+if (!result.canAccess) return result.redirect();
 const user = Astro.locals.user!;
 ---
 

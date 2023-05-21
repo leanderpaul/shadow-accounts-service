@@ -6,7 +6,7 @@
 /**
  * Importing user defined packages
  */
-import { verifyEmail } from '@app/lib';
+import { GraphQL } from '@app/lib';
 
 /**
  * Importing components
@@ -22,16 +22,14 @@ import { Icon } from 'astro-icon';
  * Declaring the constants
  */
 const code = Astro.url.searchParams.get('code');
-const rawMsg = code ? await verifyEmail(code) : 'Invalid email verification code';
-const success = rawMsg.includes('verified');
-const msg = rawMsg.replace('code', 'link');
+const result = await GraphQL.verifyEmail(code);
 ---
 
 <Layout title='Verify Email - Shadow Accounts'>
   <div class='screen py-32'>
     <div class='card'>
-      {success ? <Icon width='50px' color='#52a02e' name='mdi:checkbox-marked-circle-outline' /> : <Icon width='50px' color='#d74545' name='mdi:alert-circle-outline' />}
-      <div class='text-3xl ml-5'>{msg}</div>
+      {result.success ? <Icon width='50px' color='#52a02e' name='mdi:checkbox-marked-circle-outline' /> : <Icon width='50px' color='#d74545' name='mdi:alert-circle-outline' />}
+      <div class='text-3xl ml-5'>{result.message}</div>
     </div>
   </div>
 </Layout>
