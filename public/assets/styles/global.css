@@ -142,3 +142,9 @@ a {
 .bg-paper-hover:hover {
   background-color: var(--background-paper-hover);
 }
+
+.card {
+  background-color: var(--background-paper);
+  padding: 20px;
+  border-radius: 3px;
+}
