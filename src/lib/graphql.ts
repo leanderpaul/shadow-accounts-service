@@ -19,12 +19,10 @@ export interface UserSession {
 }
 
 export interface User {
-  uid: string;
   email: string;
   name: string;
   verified: boolean;
   imageUrl?: string | null;
-  csrfToken: string;
   sessions: UserSession[];
 }
 
@@ -33,73 +31,66 @@ interface GraphQLOptions {
   variables?: Record<string, any>;
 }
 
+export interface GraphQLError {
+  message: string;
+}
+
+export interface GraphQLSuccessResponse<T> {
+  success: true;
+  data: T;
+}
+
+export interface GraphQLErrorResponse {
+  success: false;
+  errors: GraphQLError[];
+  error: GraphQLError;
+}
+
+export type GraphQLResponse<T = any> = GraphQLSuccessResponse<T> | GraphQLErrorResponse;
+
 /**
  * Declaring the constants
  */
-const ARCHIVE_GRAPHQL_ENDPOINT: string = import.meta.env.ARCHIVE_GRAPHQL_ENDPOINT || 'https://archive.dev.shadow-apps.com/graphql/accounts';
+const SHADOW_ARCHIVE_DOMAIN: string = import.meta.env.SHADOW_ARCHIVE_DOMAIN || 'https://archive.dev.shadow-apps.com';
 
-const GET_USER = /* GraphQL */ `
-  query GetCurrentUser {
-    viewer {
-      uid
-      email
-      name
-      verified
-      imageUrl
-      csrfToken
-      sessions {
-        id
-        browser
-        os
-        device
-        accessedAt
-        currentSession
-      }
-    }
+export class GraphQL {
+  private static rawQuery(query: string, options: GraphQLOptions = {}): Promise<Response> {
+    let headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (options.cookie) headers.cookie = options.cookie;
+    const body = JSON.stringify({ query, variables: options.variables });
+    return fetch(SHADOW_ARCHIVE_DOMAIN + '/graphql/accounts', { method: 'post', body, headers });
   }
-`;
 
-const VERIFY_USER = /* GraphQL */ `
-  mutation VerifyEmail($code: String!) {
-    verifyEmailAddress(code: $code)
+  private static async query<T = any>(query: string, options: GraphQLOptions = {}): Promise<GraphQLResponse<T>> {
+    const response = await GraphQL.rawQuery(query, options);
+    const resBody = await response.json();
+    if (resBody.data) return { success: true, data: resBody.data };
+    return { success: false, error: resBody.errors[0], errors: resBody.errors };
   }
-`;
 
-const RESET_PASSWORD = /* GraphQL */ `
-  mutation VerifyResetPasswordToken($code: String!) {
-    resetPassword(code: $code, newPassword: "")
+  static async getUser(cookie: string): Promise<User | null> {
+    const query = 'query { viewer { email name verified imageUrl sessions { id browser os device accessedAt currentSession } } }';
+    const response = await GraphQL.query<{ viewer: User }>(query, { cookie });
+    return response.success ? response.data.viewer : null;
   }
-`;
 
-async function rawGraphql(query: string, options: GraphQLOptions = {}) {
-  let headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (options.cookie) headers.cookie = options.cookie;
-  const body = JSON.stringify({ query, variables: options.variables });
-  return await fetch(ARCHIVE_GRAPHQL_ENDPOINT, { method: 'post', body, headers });
-}
+  static async signOut(cookie: string, clearAllSessions = false): Promise<Response> {
+    const query = 'mutation Logout($sessionId: Int) { logout(sessionId: $sessionId) }';
+    const variables = { sessionId: clearAllSessions ? -1 : null };
+    return await GraphQL.rawQuery(query, { cookie, variables });
+  }
 
-async function graphql(query: string, options: GraphQLOptions = {}) {
-  const response = await rawGraphql(query, options);
-  return await response.json();
-}
+  static async verifyEmail(code: string | null): Promise<{ success: boolean; message: string }> {
+    if (!code) return { success: false, message: 'Invalid email verification code' };
+    const query = 'mutation VerifyEmail($code: String!) { verifyEmailAddress(code: $code) }';
+    const response = await GraphQL.query(query, { variables: { code } });
+    if (response.success) return { success: true, message: 'Email address verified successfully' };
+    return { success: false, message: response.error.message };
+  }
 
-export async function getUser(cookie: string) {
-  const response = await graphql(GET_USER, { cookie });
-  if (response.errors) return null;
-  return response.data.viewer as User;
-}
-
-export async function signOut(cookie: string, clearAllSessions = false) {
-  const variables = { sessionId: clearAllSessions ? -1 : null };
-  return await rawGraphql('mutation Logout($sessionId: Int) { logout(sessionId: $sessionId) }', { cookie, variables });
-}
-
-export async function verifyEmail(code: string) {
-  const response = await graphql(VERIFY_USER, { variables: { code } });
-  return (response.errors?.[0]?.message as string) || 'Email address verified successfully';
-}
-
-export async function verifyResetPasswordToken(code: string) {
-  const response = await graphql(RESET_PASSWORD, { variables: { code } });
-  return !!response.data;
+  static async verifyResetPasswordToken(code: string): Promise<boolean> {
+    const query = 'mutation VerifyResetPasswordToken($code: String!) { resetPassword(code: $code, newPassword: "") }';
+    const response = await GraphQL.query(query, { variables: { code } });
+    return response.success;
+  }
 }
