@@ -51,14 +51,14 @@ export type GraphQLResponse<T = any> = GraphQLSuccessResponse<T> | GraphQLErrorR
 /**
  * Declaring the constants
  */
-const SHADOW_ARCHIVE_DOMAIN: string = import.meta.env.SHADOW_ARCHIVE_DOMAIN || 'https://archive.dev.shadow-apps.com';
+const SHADOW_ARCHIVE_HOSTNAME: string = import.meta.env.SHADOW_ARCHIVE_HOSTNAME || 'archive.dev.shadow-apps.com';
 
 export class GraphQL {
   private static rawQuery(query: string, options: GraphQLOptions = {}): Promise<Response> {
-    let headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    let headers: Record<string, string> = { 'Content-Type': 'application/json', 'x-shadow-service': 'accounts' };
     if (options.cookie) headers.cookie = options.cookie;
     const body = JSON.stringify({ query, variables: options.variables });
-    return fetch(SHADOW_ARCHIVE_DOMAIN + '/graphql/accounts', { method: 'post', body, headers });
+    return fetch(`https://${SHADOW_ARCHIVE_HOSTNAME}/graphql/accounts`, { method: 'post', body, headers });
   }
 
   private static async query<T = any>(query: string, options: GraphQLOptions = {}): Promise<GraphQLResponse<T>> {
