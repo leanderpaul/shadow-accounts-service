@@ -82,7 +82,7 @@ export class GraphQL {
 
   static async verifyEmail(code: string | null): Promise<{ success: boolean; message: string }> {
     if (!code) return { success: false, message: 'Invalid email verification code' };
-    const query = 'mutation VerifyEmail($code: String!) { verifyEmailAddress(code: $code) }';
+    const query = 'mutation VerifyEmail($code: String!) { verifyEmail(code: $code) }';
     const response = await GraphQL.query(query, { variables: { code } });
     if (response.success) return { success: true, message: 'Email address verified successfully' };
     return { success: false, message: response.error.message };
